@@ -1,0 +1,15 @@
+import { NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getCurrentAccount, requireRole } from '@/lib/auth/account';
+import { createClinicPatient, listClinicPatients } from '@/lib/clinicconnect/clinic-patients';
+import { GET, POST } from './route';
+vi.mock('@/lib/auth/account', () => ({ getCurrentAccount: vi.fn(), requireRole: vi.fn(), toErrorResponse: (error: unknown) => NextResponse.json({ error: (error as Error).message }, { status: (error as { status?: number }).status ?? 500 }) }));
+vi.mock('@/lib/clinicconnect/clinic-patients', async () => { const actual = await vi.importActual<typeof import('@/lib/clinicconnect/clinic-patients')>('@/lib/clinicconnect/clinic-patients'); return { ...actual, listClinicPatients: vi.fn(), createClinicPatient: vi.fn() }; });
+const context = { accountId: 'account-a', userId: 'user-a', role: 'owner', account: { id: 'account-a', name: 'A' }, supabase: {} };
+const patient = { id: 'p', account_id: 'account-a', contact_id: 'c', contact: { id: 'c', phone: '+14155550123', name: 'Ada' } };
+describe('ClinicConnect patient route', () => { beforeEach(() => { vi.clearAllMocks(); vi.mocked(getCurrentAccount).mockResolvedValue(context as never); vi.mocked(requireRole).mockResolvedValue(context as never); vi.mocked(listClinicPatients).mockResolvedValue([patient] as never); vi.mocked(createClinicPatient).mockResolvedValue(patient as never); });
+  it('lists the authenticated account patients', async () => expect(await (await GET(new Request('http://localhost/api/clinicconnect/patients'))).json()).toEqual({ patients: [patient] }));
+  it('creates a patient through the admin context', async () => { const result = await POST(new Request('http://localhost/api/clinicconnect/patients', { method: 'POST', body: JSON.stringify({ contact_id: '11111111-1111-4111-8111-111111111111' }) })); expect(result.status).toBe(201); expect(createClinicPatient).toHaveBeenCalledWith(context, expect.objectContaining({ contact_id: expect.any(String) })); });
+  it('rejects account overrides before persistence', async () => { const result = await POST(new Request('http://localhost/api/clinicconnect/patients', { method: 'POST', body: JSON.stringify({ account_id: 'account-b', contact_id: '11111111-1111-4111-8111-111111111111' }) })); expect(result.status).toBe(400); expect(createClinicPatient).not.toHaveBeenCalled(); });
+  it('rejects unauthorized mutations before persistence', async () => { vi.mocked(requireRole).mockRejectedValueOnce(Object.assign(new Error('Insufficient role'), { status: 403 })); const result = await POST(new Request('http://localhost/api/clinicconnect/patients', { method: 'POST', body: JSON.stringify({ contact_id: '11111111-1111-4111-8111-111111111111' }) })); expect(result.status).toBe(403); expect(createClinicPatient).not.toHaveBeenCalled(); });
+});

@@ -1,0 +1,12 @@
+import { NextResponse } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getCurrentAccount } from '@/lib/auth/account';
+import { getAvailableAppointmentSlots } from '@/lib/clinicconnect/clinic-appointments';
+import { GET } from './route';
+vi.mock('@/lib/auth/account', () => ({ getCurrentAccount: vi.fn(), toErrorResponse: (error: unknown) => NextResponse.json({ error: (error as Error).message }, { status: (error as { status?: number }).status ?? 500 }) }));
+vi.mock('@/lib/clinicconnect/clinic-appointments', async () => { const actual = await vi.importActual<typeof import('@/lib/clinicconnect/clinic-appointments')>('@/lib/clinicconnect/clinic-appointments'); return { ...actual, getAvailableAppointmentSlots: vi.fn() }; });
+const context = { accountId: 'account-a', userId: 'user-a', role: 'owner', account: { id: 'account-a', name: 'A' }, supabase: {} };
+describe('ClinicConnect availability route', () => { beforeEach(() => { vi.clearAllMocks(); vi.mocked(getCurrentAccount).mockResolvedValue(context as never); vi.mocked(getAvailableAppointmentSlots).mockResolvedValue({ doctor_id: 'd', service_id: 's', date: '2099-01-15', timezone: 'UTC', duration_minutes: 30, slots: [] }); });
+  it('requires doctor, service, and date', async () => expect((await GET(new Request('http://localhost/api/clinicconnect/appointments/availability'))).status).toBe(400));
+  it('passes only resource selectors to the availability service', async () => { const response = await GET(new Request('http://localhost/api/clinicconnect/appointments/availability?doctor_id=d&service_id=s&date=2099-01-15&account_id=account-b')); expect(response.status).toBe(200); expect(getAvailableAppointmentSlots).toHaveBeenCalledWith(context, { doctor_id: 'd', service_id: 's', date: '2099-01-15' }); });
+});

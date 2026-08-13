@@ -1,0 +1,10 @@
+import type { ClinicSchedule, ClinicScheduleWrite } from './clinic-schedules';
+
+export const SCHEDULES_ENDPOINT = '/api/clinicconnect/schedules';
+export class ClinicSchedulesClientError extends Error { constructor(message: string, readonly status: number) { super(message); this.name = 'ClinicSchedulesClientError'; } }
+function message(status: number) { if (status === 400) return 'Check the highlighted schedule fields.'; if (status === 401) return 'Your session has expired. Sign in again.'; if (status === 403) return 'Only clinic administrators can manage schedules.'; if (status === 404) return 'That schedule or doctor could not be found in this clinic.'; if (status === 409) return 'This schedule overlaps another active schedule.'; return 'Schedules are temporarily unavailable. Please try again.'; }
+type FetchLike = typeof fetch;
+async function parse(response: Response): Promise<unknown> { return response.json().catch(() => null); }
+async function check<T>(response: Response, body: unknown): Promise<T> { if (!response.ok) throw new ClinicSchedulesClientError(message(response.status), response.status); return body as T; }
+export async function fetchSchedules(doctorId?: string, fetcher: FetchLike = fetch): Promise<ClinicSchedule[]> { const query = doctorId ? `?doctor_id=${encodeURIComponent(doctorId)}` : ''; const response = await fetcher(`${SCHEDULES_ENDPOINT}${query}`, { cache: 'no-store' }); const result = await check<{ schedules?: ClinicSchedule[] }>(response, await parse(response)); return result.schedules ?? []; }
+export async function saveScheduleRequest(input: ClinicScheduleWrite, scheduleId?: string, fetcher: FetchLike = fetch): Promise<ClinicSchedule> { const response = await fetcher(scheduleId ? `${SCHEDULES_ENDPOINT}/${encodeURIComponent(scheduleId)}` : SCHEDULES_ENDPOINT, { method: scheduleId ? 'PUT' : 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) }); const result = await check<{ schedule?: ClinicSchedule }>(response, await parse(response)); if (!result.schedule) throw new ClinicSchedulesClientError('Schedule returned an unexpected response.', 500); return result.schedule; }

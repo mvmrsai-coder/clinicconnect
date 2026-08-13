@@ -1,0 +1,32 @@
+import { describe, expect, it } from 'vitest';
+import { ACTIVE_APPOINTMENT_STATUSES, APPOINTMENT_STATUSES, ClinicAppointmentError, generateAppointmentSlots, intervalsOverlap, minutesToTime, normalizeTime, timeToMinutes, validateAppointmentWrite } from './clinic-appointments';
+
+const ids = { doctor_id: '11111111-1111-4111-8111-111111111111', service_id: '22222222-2222-4222-8222-222222222222', patient_profile_id: '33333333-3333-4333-8333-333333333333' };
+describe('appointment availability and validation', () => {
+  it('generates 30-minute slots across a schedule', () => expect(generateAppointmentSlots([{ start_time: '09:00', end_time: '12:00' }], 30)).toHaveLength(6));
+  it('uses service duration rather than schedule slot duration', () => expect(generateAppointmentSlots([{ start_time: '09:00', end_time: '12:00' }], 60)).toEqual([{ start_time: '09:00', end_time: '10:00' }, { start_time: '10:00', end_time: '11:00' }, { start_time: '11:00', end_time: '12:00' }]));
+  it('does not create a slot past schedule end', () => expect(generateAppointmentSlots([{ start_time: '09:00', end_time: '10:10' }], 30).at(-1)?.end_time).toBe('10:00'));
+  it('handles multiple independent schedule intervals', () => expect(generateAppointmentSlots([{ start_time: '09:00', end_time: '10:00' }, { start_time: '13:00', end_time: '14:00' }], 30).map((slot) => slot.start_time)).toEqual(['09:00', '09:30', '13:00', '13:30']));
+  it('deduplicates overlapping schedule rows without merging intervals', () => expect(generateAppointmentSlots([{ start_time: '09:00', end_time: '10:00' }, { start_time: '09:00', end_time: '10:00' }], 30)).toHaveLength(2));
+  it('uses half-open adjacency semantics', () => expect(intervalsOverlap('09:00', '09:30', '09:30', '10:00')).toBe(false));
+  it('detects partial overlap', () => expect(intervalsOverlap('09:00', '09:30', '09:29', '09:59')).toBe(true));
+  it('detects contained overlap', () => expect(intervalsOverlap('09:00', '12:00', '10:00', '11:00')).toBe(true));
+  it('converts time to minutes', () => expect(timeToMinutes('09:30:00')).toBe(570));
+  it('formats minutes as HH:MM', () => expect(minutesToTime(570)).toBe('09:30'));
+  it('normalizes seconds', () => expect(normalizeTime('09:30:15')).toBe('09:30'));
+  it('exposes only the approved statuses', () => expect(APPOINTMENT_STATUSES).toEqual(['pending', 'confirmed', 'rescheduled', 'cancelled', 'completed', 'no_show']));
+  it('uses only active statuses for blocking', () => expect(ACTIVE_APPOINTMENT_STATUSES).toEqual(['pending', 'confirmed', 'rescheduled']));
+  it('validates a complete appointment body', () => expect(validateAppointmentWrite({ ...ids, appointment_date: '2099-01-15', start_time: '09:00', end_time: '09:30' })).toMatchObject({ ...ids, appointment_date: '2099-01-15', start_time: '09:00' }));
+  it('allows partial status updates', () => expect(validateAppointmentWrite({ status: 'cancelled' }, true)).toEqual({ status: 'cancelled', source: undefined, notes: undefined, patient_profile_id: undefined, doctor_id: undefined, service_id: undefined, appointment_date: undefined, start_time: undefined, end_time: undefined }));
+  it('rejects browser account selectors', () => expect(() => validateAppointmentWrite({ ...ids, account_id: 'account-b', appointment_date: '2099-01-15', start_time: '09:00' })).toThrow('account_id is not accepted'));
+  it('rejects arbitrary duration overrides', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-01-15', start_time: '09:00', duration_minutes: 90 })).toThrow('Unsupported appointment field'));
+  it('rejects invalid dates', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-02-30', start_time: '09:00' })).toThrow('YYYY-MM-DD'));
+  it('rejects invalid times', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-01-15', start_time: '25:00' })).toThrow('Time'));
+  it('rejects invalid statuses', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-01-15', start_time: '09:00', status: 'booked' })).toThrow('status is invalid'));
+  it('requires the patient resource', () => expect(() => validateAppointmentWrite({ doctor_id: ids.doctor_id, service_id: ids.service_id, appointment_date: '2099-01-15', start_time: '09:00' })).toThrow('patient_profile_id is required'));
+  it('requires the doctor resource', () => expect(() => validateAppointmentWrite({ patient_profile_id: ids.patient_profile_id, service_id: ids.service_id, appointment_date: '2099-01-15', start_time: '09:00' })).toThrow('doctor_id is required'));
+  it('rejects unsupported notes types', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-01-15', start_time: '09:00', notes: 7 })).toThrow('notes must be a string'));
+  it('rejects an invalid identifier', () => expect(() => validateAppointmentWrite({ ...ids, doctor_id: 'doctor-b', appointment_date: '2099-01-15', start_time: '09:00' })).toThrow('valid identifier'));
+  it('rejects an invalid date in availability semantics', () => expect(() => validateAppointmentWrite({ ...ids, appointment_date: '2099-1-15', start_time: '09:00' })).toThrow('YYYY-MM-DD'));
+  it('returns typed domain errors', () => { try { normalizeTime('bad'); } catch (error) { expect(error).toBeInstanceOf(ClinicAppointmentError); expect((error as ClinicAppointmentError).status).toBe(400); } });
+});

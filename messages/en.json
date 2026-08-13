@@ -20,6 +20,14 @@
     "inbox": "Inbox",
     "notifications": "Notifications",
     "contacts": "Contacts",
+    "clinicProfile": "Clinic profile",
+    "clinicDoctors": "Doctors",
+    "clinicServices": "Services",
+    "clinicSchedules": "Schedules",
+    "clinicPatients": "Patients",
+    "clinicAppointments": "Appointments",
+    "clinicWhatsApp": "WhatsApp",
+    "clinicconnect": "ClinicConnect",
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
     "automations": "Automations",
@@ -45,6 +53,14 @@
     "inbox": "Inbox",
     "notifications": "Notifications",
     "contacts": "Contacts",
+    "clinicProfile": "Clinic profile",
+    "clinicDoctors": "Doctors",
+    "clinicServices": "Services",
+    "clinicSchedules": "Schedules",
+    "clinicPatients": "Patients",
+    "clinicAppointments": "Appointments",
+    "clinicWhatsApp": "WhatsApp",
+    "clinicconnect": "ClinicConnect",
     "pipelines": "Pipelines",
     "broadcasts": "Broadcasts",
     "automations": "Automations",
@@ -384,9 +400,9 @@
         "custom": "Custom Fields",
         "deals": "Deals",
         "tags": "Tags",
-      "noTags": "No tags",
-      "noDeals": "No deals",
-      "addNotePlaceholder": "Add a note..."
+        "noTags": "No tags",
+        "noDeals": "No deals",
+        "addNotePlaceholder": "Add a note..."
       },
       "actions": {
         "edit": "Edit",
@@ -1360,13 +1376,13 @@
       "deleteLocallyAria": "Delete template locally",
       "deleteMetaLocallyTitle": "Delete from Meta and locally",
       "deleteLocallyTitle": "Delete locally",
-      
+
       "dialogEditTitle": "Edit Message Template",
       "dialogNewTitle": "New Message Template",
       "dialogEditDesc": "Save your changes to re-submit to Meta. Status will flip back to PENDING during review.",
       "dialogNewDesc": "Build a template and submit it to Meta for approval. Once approved, you can use it in broadcasts and the inbox.",
       "authWarning": "AUTHENTICATION templates have a fixed body + OTP button shape that needs a different builder. Create them in Meta WhatsApp Manager for now and use <bold>Sync from Meta</bold> to bring them in.",
-      
+
       "templateName": "Template Name",
       "namePlaceholder": "e.g. order_confirmation",
       "nameFixed": "Name is fixed once a template exists on Meta — create a new template to change it.",
@@ -1375,7 +1391,7 @@
       "language": "Language",
       "langFixed": "Language is fixed once a template exists on Meta.",
       "langHint": "Must match the exact code on Meta — <code>en_US</code> and <code>en</code> are distinct.",
-      
+
       "header": "Header",
       "headerNone": "None",
       "headerText": "Text",
@@ -1385,7 +1401,7 @@
       "headerTextPlaceholder": "Header text (max 60 chars, optional {{1}})",
       "headerSampleAria": "Sample value for header variable",
       "headerSamplePlaceholder": "Sample value for {{1}} (required for Meta review)",
-      
+
       "uploadImage": "Upload image",
       "uploadHint": "JPEG or PNG, ≤5 MB",
       "mediaUrlPlaceholder": "https://… (or paste a public {format} link)",
@@ -1393,17 +1409,17 @@
       "mediaHint": "Must be a publicly accessible HTTPS link. Meta fetches it once during review, so it needs to stay live for ~24 hrs.",
       "videoHint": " Recommended: MP4 / 3GPP, ≤16 MB, ≤60 seconds.",
       "documentHint": " Recommended: PDF, ≤100 MB.",
-      
+
       "bodyText": "Body Text",
       "bodyPlaceholder": "Hello {{1}}, your order {{2}} is confirmed.",
       "bodyHint": "Use {{1}}, {{2}} for variables (must be contiguous starting at {{1}}).",
       "sampleValues": "Sample values (Meta uses these to review your template)",
       "sampleAria": "Sample value for body variable {var}",
       "samplePlaceholder": "Sample for {var}",
-      
+
       "footer": "Footer (optional)",
       "footerPlaceholder": "Optional footer text (max 60 chars)",
-      
+
       "buttons": "Buttons (optional)",
       "addButton": "Add Button",
       "buttonsLimit": "Up to {max} buttons. QUICK_REPLY buttons must come before URL / phone / copy-code buttons.",
@@ -1416,19 +1432,19 @@
       "urlSamplePlaceholder": "Example value for {{1}} (required when URL has a variable)",
       "phonePlaceholder": "+15551234567",
       "codePlaceholder": "Example code (e.g. SUMMER20)",
-      
+
       "cancel": "Cancel",
       "saving": "Saving…",
       "submitting": "Submitting…",
       "saveResubmit": "Save & Resubmit",
       "submitApproval": "Submit for Approval",
-      
+
       "deleteDialogTitle": "Delete template?",
       "deleteMetaDesc": "\"{name}\" will be deleted from Meta and from wacrm. Active broadcasts using this template will start failing on their next send. This can't be undone.",
       "deleteLocalDesc": "\"{name}\" will be deleted from wacrm. It was never submitted to Meta, so no remote cleanup is needed.",
       "deleting": "Deleting…",
       "delete": "Delete",
-      
+
       "toastLoadFailed": "Failed to load templates",
       "toastSubmitFailed": "Failed to submit",
       "toastSubmitEditSuccess": "Edit submitted — Meta typically reviews within 24 hours.",
@@ -1568,7 +1584,7 @@
       "profileSaved": "Profile saved",
       "emailChangeFailed": "Email change failed: {message}",
       "profileSavedEmailCheck": "Profile saved — check your email to confirm the address change",
-      
+
       "passwordTitle": "Password",
       "passwordDesc": "Use at least {min} characters. You will stay signed in on this device after changing it.",
       "currentPassword": "Current password",
@@ -1582,7 +1598,7 @@
       "currentPasswordIncorrect": "Current password is incorrect",
       "passwordUpdateFailed": "Password update failed: {message}",
       "passwordUpdated": "Password updated",
-      
+
       "sessionsTitle": "Active sessions",
       "sessionsDesc": "Sign out of every device where you're logged in — including this one. Useful if you lost a laptop or shared your password.",
       "signOutAll": "Sign out of all devices",
@@ -1722,6 +1738,86 @@
       "reindex": "Reindex",
       "reindexTooltip": "Re-embed all documents (e.g. after adding an embeddings key)",
       "loading": "Loading…"
+    }
+  },
+  "ClinicWhatsApp": {
+    "title": "WhatsApp readiness",
+    "description": "Review connection readiness and manage explicit contact consent.",
+    "back": "Back to ClinicConnect",
+    "refresh": "Refresh",
+    "loading": "Loading WhatsApp readiness",
+    "loadTitle": "Unable to load WhatsApp readiness",
+    "loadError": "WhatsApp readiness is temporarily unavailable.",
+    "retry": "Try again",
+    "attention": "Attention",
+    "overall": "Overall readiness",
+    "configuration": "Configuration",
+    "diagnostics": "Meta diagnostics",
+    "templates": "Template readiness",
+    "notConfigured": "Not configured",
+    "phoneConfigured": "Phone number",
+    "connectedAt": "Connected",
+    "registration": "Registration",
+    "openConfiguration": "Open WhatsApp settings",
+    "verified": "Verified",
+    "blocked": "Needs attention",
+    "notRun": "Not run",
+    "diagnosticHint": "Run the existing server-side diagnostic when you are ready to check Meta.",
+    "diagnosticError": "The diagnostic could not be completed.",
+    "runDiagnostics": "Run diagnostics",
+    "approved": "approved",
+    "total": "total",
+    "pending": "pending",
+    "templatesReady": "At least one approved template is available.",
+    "templatesUnavailable": "Template readiness is not available yet.",
+    "manageTemplates": "Manage templates",
+    "yes": "Yes",
+    "no": "No",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "consentTitle": "Contact consent",
+    "consentDescription": "Consent is explicit, account-scoped, and stored as append-only history.",
+    "totalContacts": "Total contacts",
+    "optedIn": "Current OPT_IN",
+    "optedOut": "Current OPT_OUT",
+    "unknown": "No consent event",
+    "search": "Search name, phone, or email",
+    "readOnly": "Read-only access",
+    "readOnlyBody": "Agents and above can record consent. Your role can still view account-scoped history.",
+    "noMatches": "No contacts match that search.",
+    "noContacts": "No contacts are available in this clinic.",
+    "unnamed": "Unnamed contact",
+    "patient": "Patient",
+    "latest": "Latest event",
+    "noEvent": "No consent event recorded",
+    "recordGate": "record consent",
+    "optIn": "Record OPT_IN",
+    "optOut": "Record OPT_OUT",
+    "history": "History",
+    "historyTitle": "Consent history",
+    "historyError": "Consent history could not be loaded.",
+    "recordError": "Consent could not be recorded.",
+    "appendOnly": "Append-only history; events cannot be edited or deleted.",
+    "source": "Source",
+    "recordedBy": "Recorded by",
+    "onboardingStatus": "Onboarding status",
+    "unknownStatus": "Unknown",
+    "states": {
+      "notConfigured": "Not configured",
+      "incomplete": "Configuration incomplete",
+      "verificationRequired": "Verification required",
+      "connectionIncomplete": "Connection incomplete",
+      "ready": "Ready",
+      "unknown": "UNKNOWN",
+      "optIn": "OPT_IN",
+      "optOut": "OPT_OUT"
+    },
+    "next": {
+      "configure": "Save the clinic's WhatsApp configuration in settings.",
+      "complete": "Complete the required configuration fields.",
+      "verify": "Run the server-side Meta diagnostic to verify the connection.",
+      "registration": "Complete registration and WABA subscription in settings.",
+      "ready": "The existing diagnostic reports a live connection."
     }
   }
 }
