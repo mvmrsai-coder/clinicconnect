@@ -3,6 +3,25 @@ import { ClinicAppointmentsClientError, fetchAppointments, fetchAvailability, fe
 const appointment = { id: 'appointment-a' } as never;
 function response(body: unknown, ok = true, status = 200) { return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }); }
 describe('appointment API client', () => {
+  it('omits undefined filters from the request URL', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(response({ appointments: [] }));
+
+    await fetchAppointments(
+      {
+        date: '2099-01-15',
+        doctor_id: undefined,
+        patient_profile_id: undefined,
+        status: undefined,
+      },
+      fetcher
+    );
+
+    expect(fetcher.mock.calls[0][0]).toBe(
+      '/api/clinicconnect/appointments?date=2099-01-15'
+    );
+  });
   it('lists appointments with filters', async () => { const fetcher = vi.fn().mockResolvedValue(response({ appointments: [appointment] })); expect(await fetchAppointments({ date: '2099-01-15', status: 'confirmed' }, fetcher)).toEqual([appointment]); expect(fetcher.mock.calls[0][0]).toContain('status=confirmed'); });
   it('loads appointment detail', async () => expect(await fetchAppointment('appointment-a', vi.fn().mockResolvedValue(response({ appointment })))).toEqual(appointment));
   it('loads availability', async () => expect(await fetchAvailability({ doctor_id: 'd', service_id: 's', date: '2099-01-15' }, vi.fn().mockResolvedValue(response({ availability: { slots: [] } })))).toMatchObject({ slots: [] }));
